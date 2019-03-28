@@ -271,6 +271,7 @@ def get_post_store(request):
         return Response({})
 
 ```
+Snippet 14
 
 ```python
 from rest_framework import serializers
@@ -306,7 +307,7 @@ class StoreSerializer(serializers.ModelSerializer):
             'rating',
         )
 ```
-
+Snippet 15
 ```python
 class GetSingleStoreTest(TestCase):
     def setUp(self):
@@ -334,7 +335,7 @@ class GetSingleStoreTest(TestCase):
         )
 
 ```
-
+Snippet 16
 ```python
 from django.shortcuts import render
 from rest_framework.response import Response
@@ -373,7 +374,7 @@ def get_post_store(request):
     elif request.method == 'POST':
         return Response({})
 ```
-
+Snippet 17
 ```python
 from django.db import models
 from django.contrib.auth.models import User
@@ -464,7 +465,7 @@ class Delivery(models.Model):
     )
 
 ```
-
+Snippet 18
 ```python
 from django.contrib import admin
 # Import your models here.
@@ -480,7 +481,7 @@ admin.site.register(PurchaseItem)
 admin.site.register(Tag)
 
 ```
-
+Snippet 19
 ```python
 from rest_framework import serializers
 from nonTrivialApp.models import Store, Tag, Address, Customer, Product, Purchase, PurchaseItem, Delivery
@@ -602,7 +603,7 @@ class DeliverySerializer(serializers.ModelSerializer):
         )
 
 ```
-
+Snippet 20
 ```python
 urlpatterns = [
     url(
@@ -628,14 +629,14 @@ urlpatterns = [
 ]
 
 ```
-
+Snippet 21
 ```python
 from rest_framework import mixins
 from rest_framework import generics
 from nonTrivialApp.models import Store, Tag
 from nonTrivialApp.serializers import StoreSerializer, TagSerializer
 ```
-
+Snippet 22
 ```python
 class TagList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = Tag.objects.all()
@@ -660,7 +661,7 @@ class TagDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.Destr
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 ```
-
+Snippet 23
 ```python
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -674,7 +675,7 @@ REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json'
 }
 ```
-
+Snippet 24
 ```python
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -688,12 +689,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 ]
 ```
-
+Snippet 25
 ```python
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 ```
-
+Snippet 26
 ```python
 @api_view(['GET', 'POST'])
 @permission_classes((IsAuthenticated, ))
@@ -707,7 +708,7 @@ def get_post_stores(request):
     elif request.method == 'POST':
         return Response({})
 ```
-
+Snippet 27
 ```python
     ,
     url(
@@ -721,8 +722,8 @@ def get_post_stores(request):
         views.authenticate_customer,
         name='authenticate_user'
     )
- ```
-
+```
+Snippet 28
 ```python
 from django.utils.html import escape
 from django.contrib.auth.models import User
@@ -730,7 +731,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from nonTrivialApp.models import Customer, Address
 ```
-
+Snippet 29
 ```python
 @api_view(['POST'])
 def create_customer(request):
@@ -813,12 +814,12 @@ def authenticate_customer(request):
             'error': 'wrong username'
         })
 ```
-
+Snippet 30
 ```python
 from nonTrivialApp.serializers import AddressSerializer
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 ```
-
+Snippet 31
 ```python
 @api_view(['GET', 'POST'])
 def get_post_addresses(request):
@@ -857,7 +858,7 @@ def get_post_addresses(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 ```
-
+Snippet 32
 ```python
     ,
     url(
@@ -866,7 +867,7 @@ def get_post_addresses(request):
         name='get_post_addresses'
     ),
 ```
-
+Snippet 33
 ```python
 from django.db.models import F
 from django.db.models import Q
@@ -874,7 +875,7 @@ from nonTrivialApp.models import Product, Tag
 from nonTrivialApp.serializers import ProductSerializer
 
 ```
-
+Smippet 34
 ```python
 @api_view(['GET', 'POST'])
 def get_post_products(request):
@@ -933,7 +934,7 @@ def get_post_products(request):
         })
 
 ```
-
+Snippet 35
 ```python
     ,
     url(
@@ -943,7 +944,7 @@ def get_post_products(request):
     ),
 ```
 
-
+Snippet 36
 ```python 
     ,
     url(
