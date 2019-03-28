@@ -1,7 +1,7 @@
 # workshop-code
-the code needed to follow along the workshop.
+The Practical Guide.
 
-
+Snippet 1
 
 ```python
 INSTALLED_APPS = [
@@ -17,8 +17,7 @@ INSTALLED_APPS = [
 ]
 ```
 
-
-
+Snippet 2
 
 ```python
 REST_FRAMEWORK = {
@@ -35,6 +34,7 @@ REST_FRAMEWORK = {
 ```
 
 
+Snippet 3
 
 ```python
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
@@ -43,9 +43,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 ```
 
-
-
-
+Snippet 5
 
 ```python
 DATABASES = {
@@ -59,6 +57,8 @@ DATABASES = {
     }
 }
 ```
+
+Snippet 6
 
 ```python
 from django.db import models
@@ -89,12 +89,16 @@ class Store(models.Model):
         ordering = ("date_created",)
 ```
 
+Snippet 7
+
 ```python
 from django.contrib import admin
 from nonTrivialApp.models import Store  # Import your model here.
 # Register your models here.
 admin.site.register(Store) # This make your model accessible from admin portal
 ```
+
+Snippet 8
 
 ```python
 from rest_framework import serializers
@@ -131,6 +135,8 @@ class StoreSerializer(serializers.ModelSerializer):
         )
 ```
 
+Snippet 9
+
 ```python
 from django.conf.urls import url
 from nonTrivialApp import views
@@ -164,6 +170,8 @@ if settings.DEBUG:
 
 ```
 
+Snippet 10
+
 ```python
 from django.shortcuts import render
 from rest_framework.response import Response
@@ -181,6 +189,7 @@ def get_post_store(request):
 
 ```
 
+Snippet 11
 
 ```python
 from django.conf.urls import include, url
@@ -194,6 +203,8 @@ urlpatterns = [
 ]
 
 ```
+
+Snippet 12
 
 ```python
 import json
@@ -232,6 +243,8 @@ class GetAllStoresTest(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 ```
+
+Snippet 13
 
 ```python
 from django.shortcuts import render
