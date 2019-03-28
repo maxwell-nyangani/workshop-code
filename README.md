@@ -1,6 +1,8 @@
 # workshop-code
 the code needed to follow along the workshop.
 
+
+
 ```python
 INSTALLED_APPS = [
   'django.contrib.admin',
@@ -851,6 +853,83 @@ def get_post_addresses(request):
         name='get_post_addresses'
     ),
 ```
+
+```python
+from django.db.models import F
+from django.db.models import Q
+from nonTrivialApp.models import Product, Tag
+from nonTrivialApp.serializers import ProductSerializer
+
+```
+
+```python
+@api_view(['GET', 'POST'])
+def get_post_products(request):
+
+    if request.method == 'POST':
+        # create products
+        product1 = Product(
+            name="Product1",
+            description="Product 1 description",
+            price=100,
+        )
+        product1.save()
+
+        product2 = Product(
+            name="Product2",
+            description="Product 2 description",
+            price=100,
+        )
+        product2.save()
+
+        # create tags
+        tag1 = Tag(name='Tag 1')
+        tag1.save()
+        tag2 = Tag(name='Tag 2')
+        tag2.save()
+        tag3 = Tag(name='Tag 3')
+        tag3.save()
+        tag4 = Tag(name='Tag 4')
+        tag4.save()
+
+        product1.tags.add(tag1)
+        product1.tags.add(tag2)
+
+        product2.tags.add(tag2)
+        product2.tags.add(tag3)
+        product2.tags.add(tag4)
+
+        # create tags
+        return Response({'message': 'Data created successfully'})
+    elif request.method == 'GET':
+        products = Product.objects.all()
+        # products = Product.objects.filter(tags__name="Tag 1")
+        # products = Product.objects.filter(tags__name__in=["Tag 1"])
+        # products = Product.objects.all().order_by("name")
+        # products = Product.objects.filter(price__gt=500)
+        # products = Product.objects.filter(name__icontains="2")
+        product_serializer = ProductSerializer(products, many=True)
+        
+        tags = Tag.objects.all()
+        #tags = Tag.objects.filter(product__name="Product2")
+        #tags = Tag.objects.filter(product__name="Product1")
+        tag_serializer = TagSerializer(tags, many=True)
+        return Response({
+            'products': product_serializer.data,
+            'tags': tag_serializer.data
+        })
+
+```
+
+```python
+    ,
+    url(
+        r'^api/v1/products/$',
+        views.get_post_products,
+        name='get_post_products'
+    ),
+```
+
 
 ```python 
     ,
