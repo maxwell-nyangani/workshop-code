@@ -614,4 +614,250 @@ urlpatterns = [
 
 ```
 
+```python
+from rest_framework import mixins
+from rest_framework import generics
+from nonTrivialApp.models import Store, Tag
+from nonTrivialApp.serializers import StoreSerializer, TagSerializer
+```
+
+```python
+class TagList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class TagDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+```
+
+```python
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny'
+    ],
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+}
+```
+
+```python
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'nonTrivialApp',
+    'rest_framework',
+    'rest_framework.authtoken',
+]
+```
+
+```python
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+```
+
+```python
+@api_view(['GET', 'POST'])
+@permission_classes((IsAuthenticated, ))
+def get_post_stores(request):
+    # get all stores in the system
+    if request.method == 'GET':
+        stores = Store.objects.all()
+        serializer = StoreSerializer(stores, many=True)
+        return Response(serializer.data)
+    # insert a new record for a store
+    elif request.method == 'POST':
+        return Response({})
+```
+
+```python
+    ,
+    url(
+        r'^api/v1/create-customer/$',
+        views.create_customer,
+        name='create_customer'
+    ),
+
+    url(
+        r'^api/v1/authenticate-customer/$',
+        views.authenticate_customer,
+        name='authenticate_user'
+    )
+ ```
+
+```python
+from django.utils.html import escape
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from nonTrivialApp.models import Customer, Address
+```
+
+```python
+@api_view(['POST'])
+def create_customer(request):
+    try:
+        username = escape(request.POST["username"])
+        email = escape(request.POST["email"])
+        password = escape(request.POST["password"])
+    except:
+        return Response({
+            'error': 'missing form data'
+        })
+
+    gender = escape(request.POST.get("gender", "-"))
+    line_1 = escape(request.POST.get("line_1", "-"))
+    line_2 = escape(request.POST.get("line_2", "-"))
+    city = escape(request.POST.get("city", "-"))
+    country = escape(request.POST.get("country", "-"))
+    lat = escape(request.POST.get("lat", '0'))
+    lon = escape(request.POST.get("lon", '0'))
+
+    # check username taken
+    user = User.objects.filter(username=username)
+    if len(user) > 0:
+        return Response({"error": "username taken"})
+
+    # check email taken
+    user = User.objects.filter(email=email)
+    if len(user) > 0:
+        return Response({"error": "email taken"})
+
+    # create user
+    user = User.objects.create_user(
+        username=username,
+        password=password,
+        email=email
+    )
+    token = Token.objects.create(user=user)
+
+    # create the Address of the customer
+    customer_address = Address(
+        line_1=line_1,
+        line_2=line_2,
+        city=city,
+        country=country,
+        lat=lat,
+        lon=lon
+    )
+    customer_address.save()
+
+    # adding the user object and the address object to build customer object
+    customer = Customer(
+        user=user,
+        gender=gender,
+        address=customer_address
+    )
+    customer.save()
+
+    return Response({
+        'token': str(token)
+    })
+
+@api_view(['POST'])
+def authenticate_customer(request):
+    username = request.POST.get('username', False)
+    password = request.POST.get('password', False)
+    user = User.objects.filter(username=username)
+    if len(user) > 0:  # username correct
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': str(token)
+            })
+        else:
+            return Response({
+                'error': 'wrong password'
+            })
+    else:
+        return Response({
+            'error': 'wrong username'
+        })
+```
+
+```python
+from nonTrivialApp.serializers import AddressSerializer
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+```
+
+```python
+@api_view(['GET', 'POST'])
+def get_post_addresses(request):
+    # get all addresses in the system
+    if request.method == 'GET':
+        address_list = Address.objects.all()
+
+        # paging code
+        page_number = request.GET.get("page_number", 1)
+        items_per_page = request.GET.get("items_per_page", 5)
+        paginator = Paginator(address_list, items_per_page)
+        try:
+            addresses = paginator.page(
+                int(page_number))
+        except PageNotAnInteger:
+            addresses = paginator.page(1)
+        except EmptyPage:
+            addresses = paginator.page(
+                paginator.num_pages)
+
+        serializer = AddressSerializer(addresses, many=True)
+        return Response(serializer.data)
+    # insert a new record for a store
+    elif request.method == 'POST':
+        data = {
+            'line_1': request.data.get('line_1'),
+            'line_2': request.data.get('line_2'),
+            'city': request.data.get('city'),
+            'country': request.data.get('country'),
+            'lat': request.data.get('lon'),
+            'lon': request.data.get('lat')
+        }
+        serializer = AddressSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+```
+
+```python
+    ,
+    url(
+        r'^api/v1/addresses/$',
+        views.get_post_addresses,
+        name='get_post_addresses'
+    ),
+```
+
+```python 
+    ,
+    url(
+      r'^%s(?P<path>.*)$' % settings.MEDIA_URL[1:], 
+      protected_serve, 
+      {'document_root': settings.MEDIA_ROOT}
+    ),
+```
 
